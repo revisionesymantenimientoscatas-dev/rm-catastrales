@@ -78,7 +78,10 @@ function setActiveLink(view){
     const target = link.getAttribute('href').slice(1);
     const section = document.getElementById(target);
     const linkView = section?.dataset.page || target;
-    link.classList.toggle('active', linkView === view);
+    const active = linkView === view;
+    link.classList.toggle('active', active);
+    if(active) link.setAttribute('aria-current', 'page');
+    else link.removeAttribute('aria-current');
   });
 }
 
