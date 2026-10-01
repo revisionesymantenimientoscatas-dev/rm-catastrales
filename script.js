@@ -89,9 +89,32 @@ function showView(){
   const view = viewFromHash();
   document.body.dataset.view = view;
   setActiveLink(view);
-  window.scrollTo({top: 0, behavior: 'auto'});
-  updateProgress();
+
+  /*
+   * Al cambiar de apartado, primero hay que mostrar la nueva vista y
+   * después colocarla arriba. En móvil el navegador puede intentar
+   * desplazarse al ancla antes de que la sección vuelva a estar visible.
+   */
+  requestAnimationFrame(() => {
+    window.scrollTo({top: 0, left: 0, behavior: 'auto'});
+    updateProgress();
+  });
 }
+
+/*
+ * Fuerza la actualización de la vista al tocar enlaces internos.
+ * Esto evita el fallo observado en móvil: cambia el # de la URL,
+ * pero permanece visible el apartado anterior.
+ */
+document.querySelectorAll('a[href^="#"]').forEach(link => {
+  link.addEventListener('click', () => {
+    const hash = link.getAttribute('href');
+    const target = hash && document.querySelector(hash);
+    if(!target?.dataset.page) return;
+
+    requestAnimationFrame(showView);
+  });
+});
 
 window.addEventListener('hashchange', showView);
 showView();
